@@ -1,0 +1,26 @@
+{
+    "name": "crm-api",
+    "version": "1.0.0",
+    "description": "Mongo Version",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "nodemon index.js"
+    },
+    "author": "hjmorrow23",
+    "license": "ISC",
+    "dependencies": {
+      "bcryptjs": "^2.4.3",
+      "chai": "^4.3.6",
+      "chai-http": "^4.3.0",
+      "cors": "^2.8.5",
+      "dotenv": "^16.0.1",
+      "express": "^4.18.1",
+      "http-proxy-middleware": "^2.0.6",
+      "jest": "^28.1.3",
+      "jsonwebtoken": "^8.5.1",
+      "mongodb-memory-server": "^8.8.0",
+      "mongoose": "^6.5.1",
+      "nodemon": "^2.0.19"
+    }
+  }
