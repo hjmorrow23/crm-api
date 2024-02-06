@@ -7,34 +7,7 @@ const Role = db.role;
 
 //DB Role Init function
 const initial = () => {
-    Role.estimatedDocumentCount((err, count) => {
-      if (!err && count === 0) {
-        new Role({
-          name: "user"
-        }).save(err => {
-          if (err) {
-            console.log("error", err);
-          }
-          console.log("added 'user' to roles collection");
-        });
-        new Role({
-          name: "moderator"
-        }).save(err => {
-          if (err) {
-            console.log("error", err);
-          }
-          console.log("added 'moderator' to roles collection");
-        });
-        new Role({
-          name: "admin"
-        }).save(err => {
-          if (err) {
-            console.log("error", err);
-          }
-          console.log("added 'admin' to roles collection");
-        });
-      }
-    });
+    Role.estimatedDocumentCount();
   }
 
 let corsOptions = {
@@ -44,6 +17,7 @@ let corsOptions = {
 const indexRouter = require('./routes/routes');
 const userRouter = require('./routes/users/routes');
 const recipesRouter = require('./routes/recipes/routes');
+const leadsRouter = require('./routes/leads/routes');
 
 const mongoString = process.env.DATABASE_URL
 
@@ -67,6 +41,7 @@ app.use(cors());
 
 app.use('/api', indexRouter)
 app.use('/api/recipes', recipesRouter)
+app.use('/api/leads', leadsRouter)
 require('./routes/auth/routes')(app);
 require('./routes/users/routes')(app);
 
