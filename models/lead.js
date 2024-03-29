@@ -50,6 +50,12 @@ const leadSchema = new mongoose.Schema({
             ref: "Interaction"
         }
     ],
-});
+    payments: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Payment"
+        }
+    ],
+}, { timestamps: true });
 
 module.exports = mongoose.model('Lead', leadSchema)

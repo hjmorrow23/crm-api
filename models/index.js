@@ -9,5 +9,6 @@ db.tag = require("./tags")
 db.lead = require("./lead")
 db.contact = require("./contact")
 db.interaction = require("./interaction")
+db.payment = require("./payment")
 db.ROLES = ["user", "admin", "moderator"];
 module.exports = db;

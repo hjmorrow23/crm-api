@@ -1,6 +1,8 @@
 const db = require("../models");
 const Lead = db.lead;
 const Contact = db.contact;
+const Interaction = db.interaction;
+const Payment = db.payment;
 
 const getContacts = async () => {
     return await Contact.find({});
@@ -64,7 +66,7 @@ exports.addLead = async (req, res) => {
                 ...primaryContactFromDB.primaryContactLeadId, 
                 lead._id
             ];
-            primaryContactFromDB.save();
+            await primaryContactFromDB.save();
         }
 
         res.status(200).json({ leadId: lead._id });
@@ -86,7 +88,7 @@ exports.getAllLeads = async (req, res) => {
 
 exports.getLeadById = async (req, res) => {
     try {
-        const lead = await Lead.findById(req.params.id).populate('primaryContact').populate('contacts');
+        const lead = await Lead.findById(req.params.id).populate('primaryContact').populate('contacts').populate('interactions').populate('payments');
         res.status(200).json(lead);
     } catch(err) {
         res.status(400).json({ message: err.message });
@@ -101,6 +103,8 @@ exports.updateLead = async (req, res) => {
         let primaryContact = lead.primaryContact;
         const newContactRecords = [];
         const existingContactRecords = [];
+        let interactions = [];
+        let payments = [];
 
          // Add provided contacts to the database
         if(req.body.contacts.length) {
@@ -125,28 +129,68 @@ exports.updateLead = async (req, res) => {
             primaryContact = [...newContactRecords, ...existingContactRecords].find(contact => contact.isPrimaryContact)?._id;
             
         }
-
+        
+        // Update primary contact if changed
         if((typeof primaryContact === 'string' && primaryContact !== lead.primaryContact?._id.toString()) || 
             (typeof primaryContact === 'object' && primaryContact?._id.toString() !== lead.primaryContact?._id.toString())) {
             const newPrimaryContactFromDB = await Contact.findById((typeof primaryContact === 'object' && primaryContact?._id.toString()) || primaryContact);
-            const oldPrimaryContactFromDB = await Contact.findById(lead.primaryContact._id.toString());
+            const oldPrimaryContactFromDB = await Contact.findById(lead.primaryContact?._id.toString());
 
             newPrimaryContactFromDB.primaryContactLeadId = [
                 ...newPrimaryContactFromDB?.primaryContactLeadId, 
                 lead._id
             ];
-            newPrimaryContactFromDB?.save();
+            await newPrimaryContactFromDB?.save();
 
-            oldPrimaryContactFromDB.primaryContactLeadId = oldPrimaryContactFromDB?.primaryContactLeadId.filter(leadId => leadId.toString() !== lead._id.toString());
-            oldPrimaryContactFromDB?.save();
+            if(oldPrimaryContactFromDB) {
+                oldPrimaryContactFromDB.primaryContactLeadId = oldPrimaryContactFromDB?.primaryContactLeadId.filter(leadId => leadId.toString() !== lead._id.toString());
+                if(oldPrimaryContactFromDB.primaryContactLeadId.length === 0)
+                    oldPrimaryContactFromDB.isPrimaryContact = false;
+                await oldPrimaryContactFromDB?.save();
+            }
+            
         }
+
+        if (req.body.interactions && req.body.interactions.length) {
+            req.body.interactions.forEach(async (i) => {
+                const newInteraction = i._id ? i : new Interaction({
+                    ...i,
+                    lead: lead._id
+                })
+
+                interactions.push(newInteraction)
+
+                if(!i._id) {
+                    await newInteraction.save()
+                }
+                
+            })
+        }
+
+        if (req.body.payments && req.body.payments.length) {
+            req.body.payments.forEach(async (p) => {
+                const newPayment = p._id ? p : new Payment({
+                    ...p,
+                    lead: lead._id
+                })
+
+                payments.push(newPayment)
+
+                if(!p._id) await newPayment.save()
+                
+            })
+        }
+        
 
         const updatedLead = {
             ...lead,
             ...req.body,
             primaryContact,
-            contacts: [...newContactRecords, ...existingContactRecords]
+            contacts: [...newContactRecords, ...existingContactRecords],
+            interactions,
+            payments,
         }
+        console.log("UPLEAD", req.body)
         Object.assign(lead, updatedLead).save();
         res.status(204).json(lead);
     } catch(err) {

@@ -83,6 +83,15 @@ exports.updateContact = async (req, res) => {
 
 exports.deleteContact = async (req, res) => {
     try {
+        const contact = await Contact.findById(req.params.id);
+        if(contact.company) {
+            const contactLead = await Lead.findById(contact.company);
+            contactLead.contacts = contactLead.contacts.filter(leadContact => leadContact.toString() !== contact._id.toString());
+            if(contactLead.primaryContact?.toString() === contact._id.toString()) {
+                contactLead.primaryContact = null;
+            }
+            contactLead.save();
+        }
         await Contact.remove({_id : req.params.id});
         res.status(204).json({ message: "Contact successfully deleted!"})
     } catch(err) {

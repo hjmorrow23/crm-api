@@ -15,9 +15,11 @@ let corsOptions = {
   };
 
 const indexRouter = require('./routes/routes');
-const userRouter = require('./routes/users/routes');
 const recipesRouter = require('./routes/recipes/routes');
 const leadsRouter = require('./routes/leads/routes');
+const contactsRouter = require('./routes/contacts/routes');
+const interactionsRouter = require('./routes/interactions/routes');
+const paymentsRouter = require('./routes/payments/routes');
 
 const mongoString = process.env.DATABASE_URL
 
@@ -42,6 +44,9 @@ app.use(cors());
 app.use('/api', indexRouter)
 app.use('/api/recipes', recipesRouter)
 app.use('/api/leads', leadsRouter)
+app.use('/api/contacts', contactsRouter)
+app.use('/api/interactions', interactionsRouter)
+app.use('/api/payments', paymentsRouter)
 require('./routes/auth/routes')(app);
 require('./routes/users/routes')(app);
 

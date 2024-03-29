@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const interactionSchema = new mongoose.Schema({
+const paymentSchema = new mongoose.Schema({
     type: {
         required: true,
         type: String
@@ -9,20 +9,23 @@ const interactionSchema = new mongoose.Schema({
         required: true,
         type: String
     },
+    amount: {
+        required: true,
+        type: String
+    },
     description: {
         required: false,
         type: String
-    },
-    contact: {
-        required: false,
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Contact"
     },
     lead: {
         required: false,
         type: mongoose.Schema.Types.ObjectId,
         ref: "Lead"
     },
+    paymentDate: {
+        required: true,
+        type: Date
+    },
 }, { timestamps: true });
 
-module.exports = mongoose.model('Interaction', interactionSchema)
+module.exports = mongoose.model('Payment', paymentSchema)
